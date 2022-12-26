@@ -1,0 +1,139 @@
+select "std"
+slotMachine = newarray(3, 5) // Initialize Casino Slot 3*5 matrix.
+probabilityArray = newarray(21) // Initialize array to put numbers from 0 to 5 in based on the intended probability.
+c = 0 // Counter
+
+// Sets up array to include the numbers in an array to be randomly picked. 
+// The array will have more of a number which we want the probability to be higher.
+for (i = 6, i > 0, i--) {for (j = 0, j < i, j++) 
+	{probabilityArray[c] = 6-i 
+    		c++
+	}
+} 
+// Maps to easily turn number into equivalent symbol and prize.
+numberMapping = {0: "CAT", 1:"ELEPHANT", 2:"WHALE", 3:"WITCH", 4:"GOLD", 5: "WILD"}
+numberPrize = {0: 9, 1: 15, 2: 31, 3: 65, 4: 160, 5: 4000}
+
+
+// Initialize variables to keep track of certain statistics.
+
+Money = 500
+games = 0
+Cats = 0
+Elephants = 0
+Whales = 0
+Witches = 0
+Golds = 0
+Wilds = 0
+// do loop as at least one iteration is expected.
+do {
+Money -= 10 // 10 dollar bets.
+games++ 
+
+// Set matrix into randomly picked indices of the array that has the weights/probabilities of each number.
+for (i = 0, i < 3, i++) 
+{
+	for (j = 0, j < 5, j++) {slotMachine[i][j] = probabilityArray[rand(0, 21)]}
+}
+
+for (i = 0, i < 3, i++) {showln slotMachine[i]} // Show matrix of numbers, useful for debugging sometimes.
+
+
+// Show the matrix in symbol form.
+for (i = 0, i < 3, i++) {
+	showln ""
+	for (j = 0, j < 5, j++) {
+	sleep(50) // Wait an amount of time before showing the next symbol to make the effect appear smoother and more akin to a real slot machine.
+	strings = ""
+	M = length(numberMapping[slotMachine[i][j]])
+	K = 15 - M // Make sure the amount of distance between each string is the same to keep them aligned.
+	for (u=0, u<K, u++) {strings += " "}
+	show numberMapping[slotMachine[i][j]] + strings
+	
+	}
+	
+}
+
+PrizePool = 0 // Prize pool for current iteration.
+numberMatches = 0 // Track how many matches we have.
+showln ""
+for (i = 0, i < 5, i++) {
+
+    a1 = slotMachine[0][i]
+    a2 = slotMachine[1][i]
+    a3 = slotMachine[2][i]
+    // WILD should match with everything, so turn all the WILD rolls into something that is not a WILD.
+    // If an entire column is WILD then it remains the same and is therefor the jackpot.
+    if (a3 == 5) {if (a1 == 5) {a3 = a2} else {a3 = a1}}
+    if (a2 == 5) {if (a2 == 5) {a2 = a3} else {a2 = a1}}
+    if (a1 == 5) {if (a3 == 5) {a1 = a2} else {a1 = a3}}
+    if (a1 == a2) && (a2 == a3) // Check if the columns match after possibly transforming the WILD rolls.
+     {
+	// Show matches for effect.
+    if (a1 == 0) {Cats++
+        showln "Triple Cat Match!"
+    }
+    if (a1 == 1) {Elephants++
+        showln "Triple Elephant Match!"
+    }
+    if (a1 == 2) {Whales++
+  	showln "Triple Whale Match!"
+    }
+    if (a1 == 3) {Witches++
+    showln "Triple Witch Match!"
+    }
+    if (a1 == 4) {Golds++
+    showln "Triple Gold Match!"
+    }
+    if (a1 == 5) {Wilds++
+       showln "Triple Wild Match! JACKPOT!!!"
+    }
+    PrizePool += numberPrize[a1]
+        numberMatches += 1
+        
+        }
+    
+
+    
+}
+
+// Multiplier based on how many matches we've had (starting at 3).
+
+if (numberMatches == 3) {PrizePool *= 2
+    showln "3 columns matched: 2x Multiplier."
+}
+if (numberMatches == 4) {PrizePool *= 5
+    showln "4 columns matched: 5x Multiplier."
+}
+if (numberMatches == 5) {PrizePool *= 10
+    showln "5 columns matched: 10x Multiplier."
+}
+
+if (PrizePool > 100) {showln "BIG WIN!!!"}
+showln ""
+showln "Won: " + PrizePool + "."
+Money += PrizePool
+showln "You have " + Money + " Credits remaining."
+// Game ends if you run out of money after iteration.
+if (Money < 10) {showln "You are out of money. Game over!"
+    
+break}
+// Game also ends if you have exceeded a specific amount of money.
+if (Money > 2500) {
+    showln "You have exceeded the maximum winnings for this run. Game over!"
+break}
+sleep(5)
+x = readln()
+// Loop will keep running so long as the money is between 10 and 2500 and the user keeps inputting blank.
+} while x == ""
+
+
+// Text Statistics.
+showln ""
+showln "You have played " + games + " games"
+showln "Cats: " + Cats
+showln "Elephants: " + Elephants
+showln "Whales: " + Whales
+showln "Witches: " + Witches
+showln "Golds: " + Golds
+showln "Wilds: " + Wilds
